@@ -7,8 +7,18 @@
         <p class="mt-2 text-gray-600">Join our community of writers and readers</p>
       </div>
 
+      <!-- Success Message -->
+      <div v-if="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <p class="font-medium">{{ successMessage }}</p>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <p class="font-medium">{{ errorMessage }}</p>
+      </div>
+
       <!-- Registration Form -->
-      <form class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-lg">
+      <form @submit.prevent="handleSubmit" class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-lg">
         <div class="space-y-4">
           <!-- Name Field -->
           <div>
@@ -17,11 +27,16 @@
             </label>
             <input
               id="name"
+              v-model="form.name"
               type="text"
               required
-              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              :class="[
+                'appearance-none relative block w-full px-3 py-2 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                hasError('name') ? 'border-red-500' : 'border-gray-300'
+              ]"
               placeholder="John Doe"
             />
+            <p v-if="hasError('name')" class="mt-1 text-sm text-red-600">{{ getFieldError('name') }}</p>
           </div>
 
           <!-- Email Field -->
@@ -31,11 +46,16 @@
             </label>
             <input
               id="email"
+              v-model="form.email"
               type="email"
               required
-              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              :class="[
+                'appearance-none relative block w-full px-3 py-2 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                hasError('email') ? 'border-red-500' : 'border-gray-300'
+              ]"
               placeholder="you@example.com"
             />
+            <p v-if="hasError('email')" class="mt-1 text-sm text-red-600">{{ getFieldError('email') }}</p>
           </div>
 
           <!-- Password Field -->
@@ -45,11 +65,16 @@
             </label>
             <input
               id="password"
+              v-model="form.password"
               type="password"
               required
-              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              :class="[
+                'appearance-none relative block w-full px-3 py-2 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                hasError('password') ? 'border-red-500' : 'border-gray-300'
+              ]"
               placeholder="••••••••"
             />
+            <p v-if="hasError('password')" class="mt-1 text-sm text-red-600">{{ getFieldError('password') }}</p>
           </div>
 
           <!-- Confirm Password Field -->
@@ -59,6 +84,7 @@
             </label>
             <input
               id="password-confirm"
+              v-model="form.password_confirmation"
               type="password"
               required
               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -73,7 +99,7 @@
             </label>
             <div class="grid grid-cols-2 gap-3">
               <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 hover:border-indigo-500 focus:outline-none">
-                <input type="radio" name="role" value="reader" class="sr-only" checked />
+                <input v-model="form.role" type="radio" name="role" value="reader" class="sr-only" />
                 <div class="flex w-full items-center justify-between">
                   <div class="flex items-center">
                     <div class="text-sm">
@@ -84,7 +110,7 @@
                 </div>
               </label>
               <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 hover:border-indigo-500 focus:outline-none">
-                <input type="radio" name="role" value="author" class="sr-only" />
+                <input v-model="form.role" type="radio" name="role" value="author" class="sr-only" />
                 <div class="flex w-full items-center justify-between">
                   <div class="flex items-center">
                     <div class="text-sm">
@@ -115,9 +141,20 @@
         <div>
           <button
             type="submit"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+            :disabled="loading"
+            :class="[
+              'w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition',
+              loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+            ]"
           >
-            Create account
+            <span v-if="loading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creating account...
+            </span>
+            <span v-else>Create account</span>
           </button>
         </div>
 
@@ -152,4 +189,68 @@ useHead({
     { name: 'description', content: 'Create your Epic Blog account and join our community' }
   ]
 })
+
+const { register } = useAuth()
+const router = useRouter()
+
+// Form data
+const form = ref({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+  role: 'reader',
+})
+
+// UI state
+const loading = ref(false)
+const errorMessage = ref('')
+const errors = ref<Record<string, string[]>>({})
+const successMessage = ref('')
+
+// Handle form submission
+const handleSubmit = async () => {
+  // Reset errors
+  errorMessage.value = ''
+  errors.value = {}
+  successMessage.value = ''
+  loading.value = true
+
+  try {
+    const result = await register(form.value)
+
+    if (result.success) {
+      successMessage.value = 'Registration successful! Redirecting to login...'
+      form.value = {
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+        role: 'reader',
+      }
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    } else {
+      errorMessage.value = result.error || 'Registration failed'
+      errors.value = result.errors || {}
+    }
+  } catch (error: any) {
+    errorMessage.value = 'An unexpected error occurred. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Get error message for a field
+const getFieldError = (field: string): string => {
+  return errors.value[field]?.[0] || ''
+}
+
+// Check if field has error
+const hasError = (field: string): boolean => {
+  return !!errors.value[field]
+}
 </script>
