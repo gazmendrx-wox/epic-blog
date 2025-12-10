@@ -27,4 +27,35 @@ class AuthService
 
         return $user;
     }
+
+    /**
+     * Login a user and return the authenticated user with token.
+     *
+     * @param array $credentials
+     * @return array
+     * @throws ValidationException
+     */
+    public function login(array $credentials): array
+    {
+        // Find user by email
+        $user = User::where('email', $credentials['email'])->first();
+
+        // Check if user exists and password is correct
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Delete old tokens
+        $user->tokens()->delete();
+
+        // Create new token
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
+    }
 }
