@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Traits\Model\UserAttributeTrait;
 use App\Traits\Model\UserRelationshipTrait;
 use App\Traits\Model\UserRolesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,5 +13,27 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    use UserAttributeTrait, UserRelationshipTrait, UserRolesTrait;
+    use UserRelationshipTrait, UserRolesTrait;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 }
