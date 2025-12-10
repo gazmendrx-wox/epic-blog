@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: epic-blog-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-epic_blog}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_USER: ${DB_USERNAME:-epic_user}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - epic-blog-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Redis (for queue and cache)
+  redis:
+    image: redis:alpine
+    container_name: epic-blog-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - epic-blog-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Backend
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: epic-blog-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend/app:/var/www/html
+      - php_vendor:/var/www/html/vendor
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-epic_blog}
+      - DB_USERNAME=${DB_USERNAME:-epic_user}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=database
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - epic-blog-network
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: epic-blog-web
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:80"
+    volumes:
+      - ./backend/app:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - epic-blog-network
+
+  # Laravel Queue Worker
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: epic-blog-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend/app:/var/www/html
+      - php_vendor:/var/www/html/vendor
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-epic_blog}
+      - DB_USERNAME=${DB_USERNAME:-epic_user}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=database
+    depends_on:
+      - app
+      - db
+      - redis
+    networks:
+      - epic-blog-network
+
+  # Nuxt.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: epic-blog-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NUXT_PUBLIC_API_BASE=http://localhost:${BACKEND_PORT:-8000}
+    depends_on:
+      - web
+    networks:
+      - epic-blog-network
+    volumes:
+      - ./frontend/app:/app
+      - /app/node_modules
+      - /app/.nuxt
+      - /app/.output
+
+networks:
+  epic-blog-network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  php_vendor:
+    driver: local
