@@ -20,12 +20,29 @@
             <NuxtLink to="/about" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition">
               About
             </NuxtLink>
-            <NuxtLink to="/login" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition">
-              Login
-            </NuxtLink>
-            <NuxtLink to="/register" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition">
-              Sign Up
-            </NuxtLink>
+            
+            <!-- Authenticated User Menu -->
+            <template v-if="isAuthenticated">
+              <span class="text-gray-700 px-3 py-2 text-sm">
+                Welcome, <span class="font-medium text-indigo-600">{{ user?.name }}</span>
+              </span>
+              <button 
+                @click="handleLogout"
+                class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition"
+              >
+                Logout
+              </button>
+            </template>
+            
+            <!-- Guest Menu -->
+            <template v-else>
+              <NuxtLink to="/login" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition">
+                Login
+              </NuxtLink>
+              <NuxtLink to="/register" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition">
+                Sign Up
+              </NuxtLink>
+            </template>
           </div>
         </div>
       </div>
@@ -72,5 +89,15 @@
 </template>
 
 <script setup lang="ts">
-// Layout component - wraps all pages
+const { user, isAuthenticated, logout, initAuth } = useAuth()
+
+// Initialize auth state from localStorage on mount
+onMounted(() => {
+  initAuth()
+})
+
+// Handle logout
+const handleLogout = () => {
+  logout()
+}
 </script>
