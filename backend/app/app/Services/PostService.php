@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\PostApproved;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -38,6 +39,11 @@ class PostService
         
         $post->save();
         
+        // If post was auto-approved, dispatch event
+        if ($post->status === 'approved') {
+            event(new PostApproved($post->fresh(['user', 'approver'])));
+        }
+        
         return $post->fresh(['user', 'approver']);
     }
 
@@ -51,11 +57,13 @@ class PostService
         $post->content = $data['content'];
         $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 150);
         
+        $wasNotApproved = !$post->approved_at;
+        
         // If admin is updating, they can change status
         if ($user->isAdmin() && isset($data['status'])) {
             $post->status = $data['status'];
             
-            if ($data['status'] === 'approved' && !$post->approved_at) {
+            if ($data['status'] === 'approved' && $wasNotApproved) {
                 $post->approved_by = $user->id;
                 $post->approved_at = now();
                 $post->published_at = now();
@@ -68,6 +76,11 @@ class PostService
         }
         
         $post->save();
+        
+        // If post was just approved, dispatch event
+        if ($post->status === 'approved' && $wasNotApproved) {
+            event(new PostApproved($post->fresh(['user', 'approver'])));
+        }
         
         return $post->fresh(['user', 'approver']);
     }
@@ -91,8 +104,8 @@ class PostService
         $post->published_at = now();
         $post->save();
         
-        // TODO: Dispatch newsletter job when implemented
-        // SendPostNotificationJob::dispatch($post);
+        // Dispatch PostApproved event to trigger newsletter notifications
+        event(new PostApproved($post->fresh(['user', 'approver'])));
         
         return $post->fresh(['user', 'approver']);
     }
