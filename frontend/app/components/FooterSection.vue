@@ -49,6 +49,8 @@
 </template>
 
 <script setup lang="ts">
+const { subscribe } = useNewsletter()
+
 const email = ref('')
 const subscribing = ref(false)
 const subscribeMessage = ref('')
@@ -56,21 +58,26 @@ const subscribeSuccess = ref(false)
 const currentYear = new Date().getFullYear()
 
 const handleSubscribe = async () => {
+  if (!email.value) return
+  
   subscribing.value = true
   subscribeMessage.value = ''
   
-  // TODO: Implement newsletter subscription API call
-  // For now, just show a placeholder message
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  const result = await subscribe(email.value)
   
-  subscribeSuccess.value = true
-  subscribeMessage.value = 'Thank you for subscribing! Newsletter feature coming soon.'
-  email.value = ''
+  subscribing.value = false
+  
+  if (result.success) {
+    subscribeSuccess.value = true
+    subscribeMessage.value = 'Successfully subscribed! Check your email for new posts.'
+    email.value = ''
+  } else {
+    subscribeSuccess.value = false
+    subscribeMessage.value = result.error || 'Failed to subscribe. Please try again.'
+  }
   
   setTimeout(() => {
     subscribeMessage.value = ''
   }, 5000)
-  
-  subscribing.value = false
 }
 </script>

@@ -117,6 +117,13 @@
       </div>
     </section>
 
+    <!-- Newsletter Section -->
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <NewsletterBox />
+      </div>
+    </section>
+
     <!-- CTA Section -->
     <section v-if="!isAuthenticated" class="bg-gray-900 text-white py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
