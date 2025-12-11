@@ -17,7 +17,7 @@
           <span class="text-indigo-600 font-semibold text-sm">{{ authorInitials }}</span>
         </div>
         <div class="ml-3">
-          <p class="text-sm font-medium text-gray-900">{{ post.author }}</p>
+          <p class="text-sm font-medium text-gray-900">{{ post.user?.name || 'Unknown' }}</p>
           <p class="text-xs text-gray-500">{{ formattedDate }}</p>
         </div>
       </div>
@@ -38,7 +38,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <span>{{ post.likes }}</span>
+            <span>{{ post.likes_count || 0 }}</span>
           </div>
           
           <!-- Comments -->
@@ -46,7 +46,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span>{{ post.comments }}</span>
+            <span>{{ post.comments_count || 0 }}</span>
           </div>
         </div>
 
@@ -66,15 +66,22 @@
 </template>
 
 <script setup lang="ts">
+interface User {
+  id: number
+  name: string
+  email: string
+  role: string
+}
+
 interface Post {
   id: number
   title: string
   slug: string
   excerpt: string
-  author: string
+  user?: User
   published_at: string
-  likes: number
-  comments: number
+  likes_count?: number
+  comments_count?: number
 }
 
 const props = defineProps<{
@@ -82,7 +89,8 @@ const props = defineProps<{
 }>()
 
 const authorInitials = computed(() => {
-  return props.post.author
+  const name = props.post.user?.name || 'Unknown'
+  return name
     .split(' ')
     .map(name => name[0])
     .join('')
