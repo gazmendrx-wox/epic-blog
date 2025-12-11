@@ -27,6 +27,8 @@ class PostResource extends JsonResource
             'user' => new UserResource($this->whenLoaded('user')),
             'approver' => new UserResource($this->whenLoaded('approver')),
             'approved_at' => $this->approved_at?->toISOString(),
+            'likes_count' => $this->likesCount(),
+            'is_liked_by_auth' => auth()->check() ? $this->isLikedByAuth() : false,
         ];
     }
 }
