@@ -98,24 +98,46 @@
               I want to join as
             </label>
             <div class="grid grid-cols-2 gap-3">
-              <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 hover:border-indigo-500 focus:outline-none">
+              <label :class="[
+                'relative flex cursor-pointer rounded-lg border p-4 focus:outline-none transition',
+                form.role === 'reader' 
+                  ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600' 
+                  : 'border-gray-300 bg-white hover:border-indigo-500'
+              ]">
                 <input v-model="form.role" type="radio" name="role" value="reader" class="sr-only" />
                 <div class="flex w-full items-center justify-between">
                   <div class="flex items-center">
                     <div class="text-sm">
-                      <p class="font-medium text-gray-900">👤 Reader</p>
-                      <p class="text-gray-500 text-xs">Browse & comment</p>
+                      <p :class="[
+                        'font-medium',
+                        form.role === 'reader' ? 'text-indigo-900' : 'text-gray-900'
+                      ]">👤 Reader</p>
+                      <p :class="[
+                        'text-xs',
+                        form.role === 'reader' ? 'text-indigo-700' : 'text-gray-500'
+                      ]">Browse & comment</p>
                     </div>
                   </div>
                 </div>
               </label>
-              <label class="relative flex cursor-pointer rounded-lg border border-gray-300 bg-white p-4 hover:border-indigo-500 focus:outline-none">
+              <label :class="[
+                'relative flex cursor-pointer rounded-lg border p-4 focus:outline-none transition',
+                form.role === 'author' 
+                  ? 'border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600' 
+                  : 'border-gray-300 bg-white hover:border-indigo-500'
+              ]">
                 <input v-model="form.role" type="radio" name="role" value="author" class="sr-only" />
                 <div class="flex w-full items-center justify-between">
                   <div class="flex items-center">
                     <div class="text-sm">
-                      <p class="font-medium text-gray-900">✍️ Author</p>
-                      <p class="text-gray-500 text-xs">Write posts</p>
+                      <p :class="[
+                        'font-medium',
+                        form.role === 'author' ? 'text-indigo-900' : 'text-gray-900'
+                      ]">✍️ Author</p>
+                      <p :class="[
+                        'text-xs',
+                        form.role === 'author' ? 'text-indigo-700' : 'text-gray-500'
+                      ]">Write posts</p>
                     </div>
                   </div>
                 </div>
