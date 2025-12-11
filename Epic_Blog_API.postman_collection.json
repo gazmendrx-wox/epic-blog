@@ -1,0 +1,935 @@
+{
+	"info": {
+		"_postman_id": "epic-blog-api-collection",
+		"name": "Epic Blog API",
+		"description": "Complete API collection for Epic Blog application built with Laravel and Nuxt.js",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": ["{{base_url}}"],
+							"path": ["register"]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": ["{{base_url}}"],
+							"path": ["login"]
+						},
+						"description": "Login to get access token"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/forgot-password",
+							"host": ["{{base_url}}"],
+							"path": ["forgot-password"]
+						},
+						"description": "Request password reset email"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"reset-token-here\",\n    \"email\": \"john@example.com\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["reset-password"]
+						},
+						"description": "Reset password with token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Get All Posts (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts?page=1&per_page=12",
+							"host": ["{{base_url}}"],
+							"path": ["posts"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "12"
+								}
+							]
+						},
+						"description": "Get all approved posts (public access)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post by Slug (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/my-first-post",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "my-first-post"]
+						},
+						"description": "Get single post by slug"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Post (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"My Awesome Blog Post\",\n    \"content\": \"This is the content of my blog post. It contains interesting information about various topics.\",\n    \"excerpt\": \"A brief summary of the post\",\n    \"status\": \"pending\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/posts",
+							"host": ["{{base_url}}"],
+							"path": ["posts"]
+						},
+						"description": "Create a new post (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Blog Post Title\",\n    \"content\": \"Updated content goes here\",\n    \"excerpt\": \"Updated excerpt\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/posts/1",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1"]
+						},
+						"description": "Update existing post (owner or admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Post (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1"]
+						},
+						"description": "Delete post (owner or admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Posts (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/my-posts?page=1&per_page=10",
+							"host": ["{{base_url}}"],
+							"path": ["my-posts"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get current user's posts"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Posts - Admin (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/posts?page=1&per_page=50",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "posts"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Get all posts with all statuses (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Post (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/approve",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "approve"]
+						},
+						"description": "Approve a post (admin only) - triggers newsletter notification"
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Post (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "reject"]
+						},
+						"description": "Reject a post (admin only)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Post Comments (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/comments?page=1&per_page=20",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "comments"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get all comments for a post"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments Count (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/comments/count",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "comments", "count"]
+						},
+						"description": "Get total comments count for a post"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"This is a great post! Thanks for sharing.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/posts/1/comments",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "comments"]
+						},
+						"description": "Create a comment on a post (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Updated comment content\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["comments", "1"]
+						},
+						"description": "Update own comment (owner only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["comments", "1"]
+						},
+						"description": "Delete comment (owner or admin)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Likes",
+			"item": [
+				{
+					"name": "Get Likes Count (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/likes/count",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "likes", "count"]
+						},
+						"description": "Get total likes count for a post"
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Like (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/like",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "like"]
+						},
+						"description": "Toggle like on a post (like if not liked, unlike if already liked)"
+					},
+					"response": []
+				},
+				{
+					"name": "Check if Liked (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/likes/check",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "likes", "check"]
+						},
+						"description": "Check if current user has liked a post"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Users Who Liked (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/posts/1/likes/users",
+							"host": ["{{base_url}}"],
+							"path": ["posts", "1", "likes", "users"]
+						},
+						"description": "Get list of users who liked a post (admin only)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Newsletter",
+			"item": [
+				{
+					"name": "Subscribe (Public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"subscriber@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/newsletter/subscribe",
+							"host": ["{{base_url}}"],
+							"path": ["newsletter", "subscribe"]
+						},
+						"description": "Subscribe to newsletter with email"
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/newsletter/unsubscribe/token-here",
+							"host": ["{{base_url}}"],
+							"path": ["newsletter", "unsubscribe", "token-here"]
+						},
+						"description": "Unsubscribe from newsletter using token"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subscribers Count (Auth)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/newsletter/count",
+							"host": ["{{base_url}}"],
+							"path": ["newsletter", "count"]
+						},
+						"description": "Get total active subscribers count (requires authentication)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users (Admin)",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users?page=1&per_page=50",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "50"
+								}
+							]
+						},
+						"description": "Get all users including suspended (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1"]
+						},
+						"description": "Get single user details (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"updated@example.com\",\n    \"role\": \"author\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1"]
+						},
+						"description": "Update user details (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Password (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/1/password",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1", "password"]
+						},
+						"description": "Update user password (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Suspend User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/1/suspend",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1", "suspend"]
+						},
+						"description": "Suspend user account (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Unsuspend User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/1/unsuspend",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1", "unsuspend"]
+						},
+						"description": "Restore suspended user account (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Permanently (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1"]
+						},
+						"description": "Permanently delete user (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Stats (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/1/stats",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "1", "stats"]
+						},
+						"description": "Get user statistics (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Platform Stats (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/stats",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "stats"]
+						},
+						"description": "Get platform-wide statistics (admin only)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
