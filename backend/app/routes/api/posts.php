@@ -13,8 +13,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/posts/{post}', [PostController::class, 'update']);
     Route::delete('/posts/{post}', [PostController::class, 'destroy']);
     Route::get('/my-posts', [PostController::class, 'myPosts']);
-    
-    // Admin only routes
+});
+
+// Admin only routes
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/posts', [PostController::class, 'adminPosts']);
     Route::post('/posts/{post}/approve', [PostController::class, 'approve']);
     Route::post('/posts/{post}/reject', [PostController::class, 'reject']);

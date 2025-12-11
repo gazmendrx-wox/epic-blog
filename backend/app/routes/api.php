@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 // Include modular route files
 require __DIR__.'/api/auth.php';
 require __DIR__.'/api/posts.php';
+require __DIR__.'/api/users.php';
