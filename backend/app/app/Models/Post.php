@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Model\PostCommentsTrait;
 use App\Traits\Model\PostLikesTrait;
 use App\Traits\Model\PostRelationshipTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory, PostRelationshipTrait, PostLikesTrait;
+    use HasFactory, PostRelationshipTrait, PostLikesTrait, PostCommentsTrait;
 
     /**
      * The attributes that are mass assignable.

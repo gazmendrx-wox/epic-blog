@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Model\UserCommentsTrait;
 use App\Traits\Model\UserRelationshipTrait;
 use App\Traits\Model\UserRolesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    use UserRelationshipTrait, UserRolesTrait;
+    use UserRelationshipTrait, UserRolesTrait, UserCommentsTrait;
 
     /**
      * The attributes that are mass assignable.

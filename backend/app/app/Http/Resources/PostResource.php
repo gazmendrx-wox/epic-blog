@@ -29,6 +29,7 @@ class PostResource extends JsonResource
             'approved_at' => $this->approved_at?->toISOString(),
             'likes_count' => $this->likesCount(),
             'is_liked_by_auth' => auth()->check() ? $this->isLikedByAuth() : false,
+            'comments_count' => $this->commentsCount(),
         ];
     }
 }
