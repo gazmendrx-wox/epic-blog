@@ -138,15 +138,30 @@
       <!-- Divider -->
       <div class="border-t border-gray-200 my-12"></div>
 
-      <!-- Comments Section Placeholder -->
+      <!-- Like Section -->
+      <div class="flex items-center justify-center mb-12">
+        <LikeButton 
+          v-if="post.id"
+          :post-id="post.id"
+          :initial-likes-count="post.likes_count || 0"
+          :initial-is-liked="post.is_liked_by_auth || false"
+          @liked="handlePostLiked"
+          @unliked="handlePostUnliked"
+        />
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-200 my-12"></div>
+
+      <!-- Comments Section -->
       <section class="mb-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Comments</h2>
-        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-          <p class="mt-2 text-sm text-gray-600">Comments feature coming soon!</p>
-        </div>
+        <CommentSection 
+          v-if="post.id"
+          :post-id="post.id"
+          @comment-added="handleCommentAdded"
+          @comment-updated="handleCommentUpdated"
+          @comment-deleted="handleCommentDeleted"
+        />
       </section>
 
       <!-- Back to Posts -->
@@ -289,6 +304,41 @@ const handleReject = async () => {
     post.value = result.data.data
   } else {
     alert(result.error)
+  }
+}
+
+// Handle post liked
+const handlePostLiked = () => {
+  if (post.value) {
+    post.value.likes_count = (post.value.likes_count || 0) + 1
+    post.value.is_liked_by_auth = true
+  }
+}
+
+// Handle post unliked
+const handlePostUnliked = () => {
+  if (post.value) {
+    post.value.likes_count = Math.max(0, (post.value.likes_count || 0) - 1)
+    post.value.is_liked_by_auth = false
+  }
+}
+
+// Handle comment added
+const handleCommentAdded = () => {
+  if (post.value) {
+    post.value.comments_count = (post.value.comments_count || 0) + 1
+  }
+}
+
+// Handle comment updated
+const handleCommentUpdated = () => {
+  // No need to update count, just refresh handled by CommentSection
+}
+
+// Handle comment deleted
+const handleCommentDeleted = () => {
+  if (post.value) {
+    post.value.comments_count = Math.max(0, (post.value.comments_count || 0) - 1)
   }
 }
 
