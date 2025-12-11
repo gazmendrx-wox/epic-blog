@@ -40,15 +40,22 @@ export const usePosts = () => {
   }
 
   /**
-   * Get a single post by slug
+   * Get a single post by slug (includes auth token if available)
    */
   const getPostBySlug = async (slug: string) => {
     try {
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+      }
+
+      // Include auth token if available (to view own non-approved posts)
+      if (token.value) {
+        headers['Authorization'] = `Bearer ${token.value}`
+      }
+
       const response = await $fetch(`${apiBase}/api/posts/${slug}`, {
         method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers,
       })
 
       return {
