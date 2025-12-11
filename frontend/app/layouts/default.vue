@@ -23,31 +23,59 @@
             
             <!-- Authenticated User Menu -->
             <template v-if="isAuthenticated">
-              <!-- Create Post link for Authors and Admins -->
-              <NuxtLink 
-                v-if="canCreatePosts" 
-                to="/posts/create" 
-                class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
-              >
-                Create Post
-              </NuxtLink>
+              <!-- Posts Dropdown for Authors and Admins -->
+              <div v-if="canCreatePosts" class="relative" @mouseleave="closeDropdown">
+                <button 
+                  @click="toggleDropdown"
+                  @mouseenter="openDropdown"
+                  class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition flex items-center"
+                >
+                  Posts
+                  <svg class="w-4 h-4 ml-1" :class="{ 'rotate-180': showPostsDropdown }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                <!-- Posts Dropdown Menu -->
+                <div 
+                  v-if="showPostsDropdown" 
+                  @mouseenter="openDropdown"
+                  class="absolute left-0 mt-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                >
+                  <div class="py-1">
+                    <NuxtLink 
+                      to="/posts/create" 
+                      @click="closeDropdown"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                    >
+                      Create Post
+                    </NuxtLink>
+                    <NuxtLink 
+                      to="/my-posts" 
+                      @click="closeDropdown"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                    >
+                      My Posts
+                    </NuxtLink>
+                    <NuxtLink 
+                      v-if="isAdmin" 
+                      to="/admin/posts" 
+                      @click="closeDropdown"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                    >
+                      Manage Submitted Posts
+                    </NuxtLink>
+                  </div>
+                </div>
+              </div>
               
-              <!-- My Posts link for Authors and Admins -->
-              <NuxtLink 
-                v-if="canCreatePosts" 
-                to="/my-posts" 
-                class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
-              >
-                My Posts
-              </NuxtLink>
-              
-              <!-- Admin Dashboard link for Admins only -->
+              <!-- Users Link for Admins only -->
               <NuxtLink 
                 v-if="isAdmin" 
-                to="/admin" 
+                to="/admin/users" 
                 class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
               >
-                Admin
+                Users
               </NuxtLink>
               
               <span class="text-gray-700 px-3 py-2 text-sm">
@@ -118,6 +146,31 @@
 <script setup lang="ts">
 const { user, isAuthenticated, logout, initAuth } = useAuth()
 const { isAdmin, isAuthor, canCreatePosts } = useRole()
+
+// Dropdown state
+const showPostsDropdown = ref(false)
+let closeTimeout: NodeJS.Timeout | null = null
+
+// Open dropdown
+const openDropdown = () => {
+  if (closeTimeout) {
+    clearTimeout(closeTimeout)
+    closeTimeout = null
+  }
+  showPostsDropdown.value = true
+}
+
+// Toggle dropdown on click
+const toggleDropdown = () => {
+  showPostsDropdown.value = !showPostsDropdown.value
+}
+
+// Close dropdown with delay
+const closeDropdown = () => {
+  closeTimeout = setTimeout(() => {
+    showPostsDropdown.value = false
+  }, 300)
+}
 
 // Initialize auth state from localStorage on mount
 onMounted(() => {
