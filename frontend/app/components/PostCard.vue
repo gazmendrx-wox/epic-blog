@@ -33,13 +33,14 @@
       <!-- Footer with stats and read more -->
       <div class="flex items-center justify-between pt-4 border-t border-gray-100">
         <div class="flex items-center space-x-4 text-sm text-gray-500">
-          <!-- Likes -->
-          <div class="flex items-center space-x-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <span>{{ post.likes_count || 0 }}</span>
-          </div>
+          <!-- Like Button -->
+          <LikeButton 
+            :post-id="post.id"
+            :initial-likes-count="post.likes_count || 0"
+            :initial-is-liked="post.is_liked_by_auth || false"
+            @liked="$emit('liked')"
+            @unliked="$emit('unliked')"
+          />
           
           <!-- Comments -->
           <div class="flex items-center space-x-1">
@@ -82,10 +83,16 @@ interface Post {
   published_at: string
   likes_count?: number
   comments_count?: number
+  is_liked_by_auth?: boolean
 }
 
 const props = defineProps<{
   post: Post
+}>()
+
+defineEmits<{
+  liked: []
+  unliked: []
 }>()
 
 const authorInitials = computed(() => {

@@ -86,7 +86,9 @@
           <PostCard 
             v-for="post in posts" 
             :key="post.id" 
-            :post="post" 
+            :post="post"
+            @liked="handlePostLiked"
+            @unliked="handlePostUnliked"
           />
         </div>
 
@@ -159,15 +161,10 @@ const fetchPosts = async (page: number = 1) => {
 
   const result = await getAllPosts(page, 12)
 
-  console.log('Fetch result:', result)
-  console.log('Posts data:', result.data)
-
   if (result.success) {
     posts.value = result.data.data
     pagination.value = result.data.meta
     currentPage.value = page
-    console.log('Posts set:', posts.value)
-    console.log('Pagination set:', pagination.value)
   } else {
     error.value = result.error
   }
@@ -183,6 +180,18 @@ const handlePageChange = (page: number) => {
   if (postsSection) {
     postsSection.scrollIntoView({ behavior: 'smooth' })
   }
+}
+
+// Handle post liked
+const handlePostLiked = () => {
+  // Refetch posts to update stats
+  fetchPosts(currentPage.value)
+}
+
+// Handle post unliked
+const handlePostUnliked = () => {
+  // Refetch posts to update stats
+  fetchPosts(currentPage.value)
 }
 
 // Fetch posts on mount
