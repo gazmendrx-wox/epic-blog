@@ -25,6 +25,7 @@ class StorePostRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'excerpt' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:draft,pending'],
         ];
     }
 }

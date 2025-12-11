@@ -94,6 +94,7 @@ export const usePosts = () => {
     title: string
     content: string
     excerpt?: string
+    status?: string
   }) => {
     try {
       const response = await $fetch(`${apiBase}/api/posts`, {

@@ -225,18 +225,21 @@ const handleSubmit = async () => {
   loading.value = false
 }
 
-// Handle save as draft - Note: Draft functionality will be added when status field is available
+// Handle save as draft
 const saveDraft = async () => {
   errorMessage.value = ''
   errors.value = {}
   successMessage.value = ''
   loading.value = true
 
-  // For now, just create the post (backend will set status based on role)
-  const result = await createPost(form.value)
+  // Create post with draft status
+  const result = await createPost({
+    ...form.value,
+    status: 'draft'
+  })
 
   if (result.success) {
-    successMessage.value = 'Post saved!'
+    successMessage.value = 'Post saved as draft!'
     
     // Redirect after success
     setTimeout(() => {

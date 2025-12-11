@@ -21,14 +21,19 @@ class PostService
         $post->content = $data['content'];
         $post->excerpt = $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 150);
         
-        // Auto-approve for admins, pending for authors
-        if ($user->isAdmin()) {
-            $post->status = 'approved';
-            $post->approved_by = $user->id;
-            $post->approved_at = now();
-            $post->published_at = now();
+        // Check if status is explicitly set (e.g., draft)
+        if (isset($data['status']) && in_array($data['status'], ['draft', 'pending'])) {
+            $post->status = $data['status'];
         } else {
-            $post->status = 'pending';
+            // Auto-approve for admins, pending for authors
+            if ($user->isAdmin()) {
+                $post->status = 'approved';
+                $post->approved_by = $user->id;
+                $post->approved_at = now();
+                $post->published_at = now();
+            } else {
+                $post->status = 'pending';
+            }
         }
         
         $post->save();
