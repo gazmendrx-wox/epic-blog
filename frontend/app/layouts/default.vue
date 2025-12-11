@@ -23,6 +23,33 @@
             
             <!-- Authenticated User Menu -->
             <template v-if="isAuthenticated">
+              <!-- Create Post link for Authors and Admins -->
+              <NuxtLink 
+                v-if="canCreatePosts" 
+                to="/posts/create" 
+                class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
+              >
+                Create Post
+              </NuxtLink>
+              
+              <!-- My Posts link for Authors and Admins -->
+              <NuxtLink 
+                v-if="canCreatePosts" 
+                to="/my-posts" 
+                class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
+              >
+                My Posts
+              </NuxtLink>
+              
+              <!-- Admin Dashboard link for Admins only -->
+              <NuxtLink 
+                v-if="isAdmin" 
+                to="/admin" 
+                class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition"
+              >
+                Admin
+              </NuxtLink>
+              
               <span class="text-gray-700 px-3 py-2 text-sm">
                 Welcome, <span class="font-medium text-indigo-600">{{ user?.name }}</span>
               </span>
@@ -90,6 +117,7 @@
 
 <script setup lang="ts">
 const { user, isAuthenticated, logout, initAuth } = useAuth()
+const { isAdmin, isAuthor, canCreatePosts } = useRole()
 
 // Initialize auth state from localStorage on mount
 onMounted(() => {
