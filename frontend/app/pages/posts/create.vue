@@ -179,6 +179,7 @@ useHead({
 
 const router = useRouter()
 const { isAdmin, isAuthor, canCreatePosts } = useRole()
+const { createPost } = usePosts()
 
 // Redirect if user cannot create posts
 if (!canCreatePosts.value) {
@@ -205,10 +206,9 @@ const handleSubmit = async () => {
   successMessage.value = ''
   loading.value = true
 
-  try {
-    // TODO: Replace with actual API call using usePosts composable
-    await new Promise(resolve => setTimeout(resolve, 1500)) // Simulated API call
-    
+  const result = await createPost(form.value)
+
+  if (result.success) {
     successMessage.value = isAdmin.value 
       ? 'Post published successfully!' 
       : 'Post submitted for approval!'
@@ -217,37 +217,37 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/my-posts')
     }, 2000)
-  } catch (error: any) {
-    errorMessage.value = 'Failed to create post. Please try again.'
-    errors.value = error.errors || {}
-  } finally {
-    loading.value = false
+  } else {
+    errorMessage.value = result.error
+    errors.value = result.errors
   }
+
+  loading.value = false
 }
 
-// Handle save as draft
+// Handle save as draft - Note: Draft functionality will be added when status field is available
 const saveDraft = async () => {
   errorMessage.value = ''
   errors.value = {}
   successMessage.value = ''
   loading.value = true
 
-  try {
-    // TODO: Replace with actual API call using usePosts composable
-    await new Promise(resolve => setTimeout(resolve, 1500)) // Simulated API call
-    
-    successMessage.value = 'Post saved as draft!'
+  // For now, just create the post (backend will set status based on role)
+  const result = await createPost(form.value)
+
+  if (result.success) {
+    successMessage.value = 'Post saved!'
     
     // Redirect after success
     setTimeout(() => {
       router.push('/my-posts')
     }, 2000)
-  } catch (error: any) {
-    errorMessage.value = 'Failed to save draft. Please try again.'
-    errors.value = error.errors || {}
-  } finally {
-    loading.value = false
+  } else {
+    errorMessage.value = result.error
+    errors.value = result.errors
   }
+
+  loading.value = false
 }
 
 // Get error message for a field
