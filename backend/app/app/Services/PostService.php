@@ -111,12 +111,12 @@ class PostService
     /**
      * Get all approved posts (public)
      */
-    public function getAllApprovedPosts(): Collection
+    public function getAllApprovedPosts(int $perPage = 50)
     {
         return Post::where('status', 'approved')
             ->with(['user'])
             ->orderBy('published_at', 'desc')
-            ->get();
+            ->paginate($perPage);
     }
 
     /**
@@ -132,22 +132,22 @@ class PostService
     /**
      * Get all posts for admin
      */
-    public function getAllPostsForAdmin(): Collection
+    public function getAllPostsForAdmin(int $perPage = 50)
     {
         return Post::with(['user', 'approver'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage);
     }
 
     /**
      * Get user's own posts
      */
-    public function getUserPosts(User $user): Collection
+    public function getUserPosts(User $user, int $perPage = 50)
     {
         return Post::where('user_id', $user->id)
             ->with(['approver'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage);
     }
 
     /**

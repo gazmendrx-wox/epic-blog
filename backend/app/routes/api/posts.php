@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-posts', [PostController::class, 'myPosts']);
     
     // Admin only routes
+    Route::get('/admin/posts', [PostController::class, 'adminPosts']);
     Route::post('/posts/{post}/approve', [PostController::class, 'approve']);
     Route::post('/posts/{post}/reject', [PostController::class, 'reject']);
 });

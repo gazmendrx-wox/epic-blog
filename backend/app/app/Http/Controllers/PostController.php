@@ -21,7 +21,8 @@ class PostController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $posts = $this->postService->getAllApprovedPosts();
+        $perPage = request()->get('per_page', 50);
+        $posts = $this->postService->getAllApprovedPosts($perPage);
         return PostResource::collection($posts);
     }
 
@@ -112,7 +113,22 @@ class PostController extends Controller
      */
     public function myPosts(): AnonymousResourceCollection
     {
-        $posts = $this->postService->getUserPosts(auth()->user());
+        $perPage = request()->get('per_page', 50);
+        $posts = $this->postService->getUserPosts(auth()->user(), $perPage);
+        return PostResource::collection($posts);
+    }
+
+    /**
+     * Get all posts for admin (admin only)
+     */
+    public function adminPosts(): AnonymousResourceCollection|JsonResponse
+    {
+        if (!auth()->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $perPage = request()->get('per_page', 50);
+        $posts = $this->postService->getAllPostsForAdmin($perPage);
         return PostResource::collection($posts);
     }
 }

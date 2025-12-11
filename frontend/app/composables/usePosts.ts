@@ -17,9 +17,9 @@ export const usePosts = () => {
   /**
    * Get all approved posts (public)
    */
-  const getAllPosts = async () => {
+  const getAllPosts = async (page: number = 1, perPage: number = 50) => {
     try {
-      const response = await $fetch(`${apiBase}/api/posts`, {
+      const response = await $fetch(`${apiBase}/api/posts?page=${page}&per_page=${perPage}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -67,9 +67,9 @@ export const usePosts = () => {
   /**
    * Get current user's posts
    */
-  const getMyPosts = async () => {
+  const getMyPosts = async (page: number = 1, perPage: number = 50) => {
     try {
-      const response = await $fetch(`${apiBase}/api/my-posts`, {
+      const response = await $fetch(`${apiBase}/api/my-posts?page=${page}&per_page=${perPage}`, {
         method: 'GET',
         headers: getAuthHeaders(),
       })
@@ -214,6 +214,29 @@ export const usePosts = () => {
     }
   }
 
+  /**
+   * Get all posts for admin (admin only)
+   */
+  const getAdminPosts = async (page: number = 1, perPage: number = 50) => {
+    try {
+      const response = await $fetch(`${apiBase}/api/admin/posts?page=${page}&per_page=${perPage}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      })
+
+      return {
+        success: true,
+        data: response,
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.data?.message || 'Failed to fetch posts',
+        errors: error.data?.errors || {},
+      }
+    }
+  }
+
   return {
     getAllPosts,
     getPostBySlug,
@@ -223,5 +246,6 @@ export const usePosts = () => {
     deletePost,
     approvePost,
     rejectPost,
+    getAdminPosts,
   }
 }
