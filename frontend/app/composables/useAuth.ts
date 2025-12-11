@@ -94,6 +94,65 @@ export const useAuth = () => {
   }
 
   /**
+   * Forgot password - request reset link
+   */
+  const forgotPassword = async (email: string) => {
+    try {
+      const response = await $fetch(`${apiBase}/api/forgot-password`, {
+        method: 'POST',
+        body: { email },
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+
+      return {
+        success: true,
+        data: response,
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.data?.message || 'Failed to send reset link',
+        errors: error.data?.errors || {},
+      }
+    }
+  }
+
+  /**
+   * Reset password with token
+   */
+  const resetPassword = async (data: {
+    email: string
+    token: string
+    password: string
+    password_confirmation: string
+  }) => {
+    try {
+      const response = await $fetch(`${apiBase}/api/reset-password`, {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      })
+
+      return {
+        success: true,
+        data: response,
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.data?.message || 'Password reset failed',
+        errors: error.data?.errors || {},
+      }
+    }
+  }
+
+  /**
    * Initialize auth from localStorage
    */
   const initAuth = () => {
@@ -115,6 +174,8 @@ export const useAuth = () => {
     register,
     login,
     logout,
+    forgotPassword,
+    resetPassword,
     initAuth,
   }
 }

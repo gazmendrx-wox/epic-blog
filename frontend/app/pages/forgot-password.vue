@@ -3,8 +3,8 @@
     <div class="max-w-md w-full space-y-8">
       <!-- Header -->
       <div class="text-center">
-        <h2 class="text-3xl font-bold text-gray-900">Welcome back!</h2>
-        <p class="mt-2 text-gray-600">Sign in to your account</p>
+        <h2 class="text-3xl font-bold text-gray-900">Forgot your password?</h2>
+        <p class="mt-2 text-gray-600">Enter your email and we'll send you a reset link</p>
       </div>
 
       <!-- Success Message -->
@@ -17,7 +17,7 @@
         <p class="font-medium">{{ errorMessage }}</p>
       </div>
 
-      <!-- Login Form -->
+      <!-- Forgot Password Form -->
       <form @submit.prevent="handleSubmit" class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-lg">
         <div class="space-y-4">
           <!-- Email Field -->
@@ -38,47 +38,6 @@
             />
             <p v-if="hasError('email')" class="mt-1 text-sm text-red-600">{{ getFieldError('email') }}</p>
           </div>
-
-          <!-- Password Field -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              required
-              :class="[
-                'appearance-none relative block w-full px-3 py-2 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-                hasError('password') ? 'border-red-500' : 'border-gray-300'
-              ]"
-              placeholder="••••••••"
-            />
-            <p v-if="hasError('password')" class="mt-1 text-sm text-red-600">{{ getFieldError('password') }}</p>
-          </div>
-        </div>
-
-        <!-- Remember me & Forgot password -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
-            />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-700 cursor-pointer">
-              Remember me
-            </label>
-          </div>
-
-        </div>
-
-        <!-- Forgot Password Link -->
-        <div class="flex items-center justify-end">
-          <NuxtLink to="/forgot-password" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-            Forgot your password?
-          </NuxtLink>
         </div>
 
         <!-- Submit Button -->
@@ -96,9 +55,9 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Signing in...
+              Sending reset link...
             </span>
-            <span v-else>Sign in</span>
+            <span v-else>Send Reset Link</span>
           </button>
         </div>
 
@@ -112,12 +71,12 @@
           </div>
         </div>
 
-        <!-- Sign Up Link -->
+        <!-- Back to Login Link -->
         <div class="text-center">
           <p class="text-sm text-gray-600">
-            Don't have an account?
-            <NuxtLink to="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
-              Sign up now
+            Remember your password?
+            <NuxtLink to="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+              Back to login
             </NuxtLink>
           </p>
         </div>
@@ -128,19 +87,17 @@
 
 <script setup lang="ts">
 useHead({
-  title: 'Login - Epic Blog',
+  title: 'Forgot Password - Epic Blog',
   meta: [
-    { name: 'description', content: 'Sign in to your Epic Blog account' }
+    { name: 'description', content: 'Reset your Epic Blog password' }
   ]
 })
 
-const { login } = useAuth()
-const router = useRouter()
+const { forgotPassword } = useAuth()
 
 // Form data
 const form = ref({
   email: '',
-  password: '',
 })
 
 // UI state
@@ -157,25 +114,17 @@ const handleSubmit = async () => {
   successMessage.value = ''
   loading.value = true
 
-  try {
-    const result = await login(form.value)
+  const result = await forgotPassword(form.value.email)
 
-    if (result.success) {
-      successMessage.value = 'Login successful! Redirecting...'
-      
-      // Redirect to homepage after 1 second
-      setTimeout(() => {
-        router.push('/')
-      }, 1000)
-    } else {
-      errorMessage.value = result.error || 'Login failed'
-      errors.value = result.errors || {}
-    }
-  } catch (error: any) {
-    errorMessage.value = 'An unexpected error occurred. Please try again.'
-  } finally {
-    loading.value = false
+  if (result.success) {
+    successMessage.value = 'Password reset link has been sent to your email!'
+    form.value.email = ''
+  } else {
+    errorMessage.value = result.error
+    errors.value = result.errors
   }
+
+  loading.value = false
 }
 
 // Get error message for a field
